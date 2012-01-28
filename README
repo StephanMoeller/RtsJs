@@ -1,0 +1,6 @@
+To test singleplayer: run singleplayer.html
+To test replay: Run replay.html
+To test multiplayer: Start rtsServer.js using node and run multiroom.html. This file loads 3 instances of multiplayer and joines the room.
+
+NOTE: To restarting the multiplayer game, stop the server, close the browser window with multiroom.html, start the server and reopen multiroom.html
+This is a bug that will be fixed soon :)
