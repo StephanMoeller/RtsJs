@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<!-- 
+(c) Copyright 2011 Aditya Ravi Shankar (www.adityaravishankar.com). All Rights Reserved. 
+NowJS and Node.js Tutorial – Creating a multi room chat client
+http://www.adityaravishankar.com/2011/10/nowjs-node-js-tutorial-creating-multi-room-chat-server/
+
+-->
+<html lang="en">
+<head style="background-color: #888">
+    <title>nowjs Multi Room Chat Server</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+    <script type="text/javascript" src="ballGame-logic.js"></script>
+    <script type="text/javascript" src="ballGame-drawing.js"></script>
+    
+    <!-- This will be client script containing the "createClient" call and the game logic -->
+    <script type="text/javascript">
+        $(document).ready(function () {
+            
+            // This instantiates the RTS model and hookups the calls to the game model
+            $("#btnLoadReplay").click(function () {
+                var replayActionArrayBuffer = JSON.parse($("#txtReplay").val());
+                // The canvas to draw on
+                var canvas = document.getElementById('canvas');
+
+                // The game model dependency (Independent)
+                var gameLogic = ballGameLogic.create(); // Only reference to ballGame-logic.js
+
+                // The graphical dependency (dependent on the game logic provided to it)
+                var gameDrawing = ballGameDrawing.create(gameLogic, canvas); // Only reference to ballGame-drawing.js
+
+                // Keep new actions locally and just feed the game logic with those
+                var nextActionIndex = 0;
+                setInterval(function () {
+                    var tick = function () {
+                        if (nextActionIndex >= replayActionArrayBuffer.length) {
+                            // Replay ended
+                            return;
+                        }
+                        // Update game ticks according to play speed
+                        gameLogic.tick(replayActionArrayBuffer[nextActionIndex]);
+                        nextActionIndex++;
+                    };
+                    
+                    // Fast forward support implemented by ticking a number of times according to the value of 'playSpeed'
+                    for (var i = 0; i < playSpeed; i++) {
+                        tick();
+                    }
+                    
+                    // Only draw once no matter what playSpeed
+                    gameDrawing.draw(gameLogic, canvas);
+                }, 40);
+
+                // UI logic
+                $("#canvas").click(function (event) {
+                    // Ignore user moves on the game. Only replay actions are applied.
+                });
+
+                // Hide replay text window and button
+                $("#replayContainer").hide();
+            });
+
+            // Fast forward control
+            var playSpeed = 1;
+            $("#btnIncreasePlaySpeed").click(function (event) {
+                playSpeed *= 2;
+                $("#playSpeed").html(playSpeed);
+            });
+            $("#btnDecreasePlaySpeed").click(function (event) {
+                if (playSpeed > 1)
+                    playSpeed /= 2;
+                $("#playSpeed").html(playSpeed);
+            });
+            $("#playSpeed").html(playSpeed);
+        });
+    </script>
+</head>
+<body style="background-color: #EEE;">
+    
+    <div id="replayContainer">
+        <input type="button" id="btnLoadReplay" value="Load replay from textbow below" />
+        <br />
+        <textarea id="txtReplay" rows="10" cols="40"></textarea>
+    </div>
+    
+    <canvas width="300" height="300" style="background-color: red" id="canvas"></canvas>
+    <br/>
+    <input type="button" id="btnDecreasePlaySpeed" value="-" />Play speed: <span id="playSpeed"></span><input type="button" id="btnIncreasePlaySpeed" value="+" />
+</body>
+</html>

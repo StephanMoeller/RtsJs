@@ -1,0 +1,2 @@
+node rtsServer.js
+cmd
