@@ -1,4 +1,10 @@
-﻿// data contains: username, groupId, totalUserCount, callbackStart, callbackTick, callbackLag
+﻿/*!
+* RtsJs - rtsClient
+* Copyright(c) 2012 Stephan Ryer <stephanryer@hotmail.com>
+* MIT Licensed
+*/
+
+// data contains: username, groupId, totalUserCount, callbackStart, callbackTick, callbackLag
 var rtsClient = { };
 rtsClient.create = function (data) {
 

@@ -1,7 +1,8 @@
-// (c) Copyright 2011 Aditya Ravi Shankar (www.adityaravishankar.com). All Rights Reserved. 
-// NowJS and Node.js Tutorial – Creating a multi room chat client
-// http://www.adityaravishankar.com/2011/10/nowjs-node-js-tutorial-creating-multi-room-chat-server/
-
+/*!
+* RtsJs - rtsServer
+* Copyright(c) 2012 Stephan Ryer <stephanryer@hotmail.com>
+* MIT Licensed
+*/
 exports.createServer = function (server) {
     return {
         init: function () {
