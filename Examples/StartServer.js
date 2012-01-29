@@ -1,4 +1,9 @@
-﻿
+﻿/*!
+* RtsJs
+* Copyright(c) 2012 Stephan Ryer <stephanryer@hotmail.com>
+* MIT Licensed
+*/
+
 // Provide the necesary ressources (Just an ugly hack to make things run)
 var fs = require('fs');
 var multiroomHtml = fs.readFileSync(__dirname + '/multiroom.html');

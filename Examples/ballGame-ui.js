@@ -1,4 +1,9 @@
-﻿var ballGameDrawing = {};
+﻿/*!
+* RtsJs
+* Copyright(c) 2012 Stephan Ryer <stephanryer@hotmail.com>
+* MIT Licensed
+*/
+var ballGameDrawing = {};
 ballGameDrawing.create = function (gameLogic, canvas) {
     var self = {};
     self.ctx = canvas.getContext('2d');

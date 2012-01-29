@@ -1,4 +1,9 @@
-﻿var ballGameLogic = {};
+﻿/*!
+* RtsJs
+* Copyright(c) 2012 Stephan Ryer <stephanryer@hotmail.com>
+* MIT Licensed
+*/
+var ballGameLogic = {};
 // Utils/helper functions with no side effects
 ballGameLogic.utils = {
     checkColliding : function (ball1, ball2) {
