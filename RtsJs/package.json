@@ -1,0 +1,20 @@
+
+{
+  "author": "Stephan Ryer",
+  "name": "RtsJs",
+  "description": "RtsJs: module for easy streamlining architecure for realtime strategy games supporting multiplayer, singleplayer and replayes with the exact same game code.",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/SRYER/RtsJs"
+  },
+  "main": "rtsServer.js",
+  "engines": {
+    "node": ">= v0.4.0"
+  },
+  "dependencies": {
+    "now": ">= 0.8.1",
+    "node-proxy": ">= 0.4.0"
+},
+  "devDependencies": {}
+}
