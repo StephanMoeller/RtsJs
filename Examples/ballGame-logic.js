@@ -3,6 +3,10 @@
 * Copyright(c) 2012 Stephan Ryer <stephanryer@hotmail.com>
 * MIT Licensed
 */
+
+/*
+* This file contains the raw game logic without graphics or input logic in it.
+*/
 var ballGameLogic = {};
 // Utils/helper functions with no side effects
 ballGameLogic.utils = {

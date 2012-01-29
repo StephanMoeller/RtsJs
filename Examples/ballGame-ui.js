@@ -3,8 +3,12 @@
 * Copyright(c) 2012 Stephan Ryer <stephanryer@hotmail.com>
 * MIT Licensed
 */
-var ballGameDrawing = {};
-ballGameDrawing.create = function (gameLogic, canvas) {
+
+/*
+* This file contains logic handling drawing and inputs
+*/
+var ballGameUi = {};
+ballGameUi.create = function (gameLogic, canvas) {
     var self = {};
     self.ctx = canvas.getContext('2d');
     self.screenWidth = canvas.width;
