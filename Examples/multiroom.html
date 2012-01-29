@@ -9,15 +9,15 @@ http://www.adityaravishankar.com/2011/10/nowjs-node-js-tutorial-creating-multi-r
 <head>
     <title>Multi user page</title>
 </head>
-<body style="background-color: #888">
-    <div>
-        <iframe src="multiplayer.html?username=UserA&groupId=game1&totalUserCount=3" style="background-color: #DDD" width="450" height="600"></iframe>
-        <iframe src="multiplayer.html?username=UserB&groupId=game1&totalUserCount=3" style="background-color: #DDD" width="450" height="600"></iframe>
-        <iframe src="multiplayer.html?username=UserC&groupId=game1&totalUserCount=3" style="background-color: #DDD" width="450" height="600"></iframe>
-    </div>
-    <!--<div>                                                                                                                              
-            <iframe src="singleroom.html?username=UserD&groupId=game2&totalUserCount=2" style="background-color: #DDD" width="450" height="400"></iframe>
-            <iframe src="singleroom.html?username=UserE&groupId=game2&totalUserCount=2" style="background-color: #DDD" width="450" height="400"></iframe>
-        </div>-->
-</body>
+    <body style="background-color: #888">
+        <input type="button" value="Launch 3 clients for a multiplayer room" onclick="javascript:launch();" />
+        <script type="text/javascript">
+            var launch = function() {
+                var gameId = "game_" + Math.random();
+                window.open("multiplayer.html?username=UserA&groupId=" + gameId + "&totalUserCount=3", "User A, game " + gameId, "menubar=1,resizable=1,width=450,height=800").moveTo(0, 0);
+                window.open("multiplayer.html?username=UserB&groupId=" + gameId + "&totalUserCount=3", "User B, game " + gameId, "menubar=1,resizable=1,width=450,height=800").moveTo(450, 0);
+                window.open("multiplayer.html?username=UserC&groupId=" + gameId + "&totalUserCount=3", "User C, game " + gameId, "menubar=1,resizable=1,width=450,height=800").moveTo(900, 0);
+            };
+        </script>
+    </body>
 </html>
