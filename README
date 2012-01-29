@@ -6,7 +6,7 @@ NOTE: To restart the multiplayer game, stop the server, close the browser window
 This is a bug that will be fixed soon :)
 
 
-Issue list:
+Todo list:
 
 - Close rooms when only 1 player left.
 - Detect disconnections and close rooms accordingly
