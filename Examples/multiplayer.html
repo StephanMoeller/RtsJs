@@ -32,12 +32,14 @@ MIT Licensed
         $(document).ready(function () {
             // The canvas to draw on
             var canvas = document.getElementById('canvas');
-            
-            // The game model dependency (Independent)
-            var gameLogic = ballGameLogic.create(); // Only reference to ballGame-logic.js
-            
-            // The graphical dependency (dependent on the game logic provided to it)
-            var gameUi = ballGameUi.create(gameLogic, canvas); // Only reference to ballGame-drawing.js
+
+            // The game model dependency (Independent). Only reference to ballGame-logic.js
+            var gameLogic = ballGameLogic.create();
+
+            // The graphical dependency (dependent on the game logic provided to it). Only reference to ballGame-ui.js
+            var gameUi = ballGameUi.create(gameLogic, canvas, function (action) {
+                client.addData(action);
+            });
 
             // The network dependency (Independent)
             // Game actions are sent to the server and action arrays are returned from the server to be applied to the game logic
@@ -65,14 +67,6 @@ MIT Licensed
                     // Debug info
                     $("#lag").html("Lag");
                 }
-            });
-
-            // UI logic
-            $("#canvas").click(function (event) {
-                var x = event.pageX - this.offsetLeft;
-                var y = event.pageY - this.offsetTop;
-                var action = ballGameLogic.createAction(x, y);
-                client.addData(action);
             });
 
             // Functionality to generate replay

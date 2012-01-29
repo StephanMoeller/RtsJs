@@ -18,11 +18,13 @@ MIT Licensed
             // The canvas to draw on
             var canvas = document.getElementById('canvas');
 
-            // The game model dependency (Independent)
-            var gameLogic = ballGameLogic.create(); // Only reference to ballGame-logic.js
+            // The game model dependency (Independent). Only reference to ballGame-logic.js
+            var gameLogic = ballGameLogic.create();
 
-            // The graphical dependency (dependent on the game logic provided to it)
-            var gameUi = ballGameUi.create(gameLogic, canvas); // Only reference to ballGame-drawing.js
+            // The graphical dependency (dependent on the game logic provided to it). Only reference to ballGame-ui.js
+            var gameUi = ballGameUi.create(gameLogic, canvas, function (action) {
+                nextActionArraybuffer.push(action);
+            });
 
             // Keep new actions locally and just feed the game logic with those
             var nextActionArraybuffer = [];
@@ -31,14 +33,6 @@ MIT Licensed
                 gameUi.draw();
                 nextActionArraybuffer = [];
             }, 40);
-
-            // UI logic
-            $("#canvas").click(function (event) {
-                var x = event.pageX - this.offsetLeft;
-                var y = event.pageY - this.offsetTop;
-                var action = ballGameLogic.createAction(x, y);
-                nextActionArraybuffer.push(action);
-            });
 
             // Functionality to generate replay
             $("#btnGenerateReplay").click(function () {

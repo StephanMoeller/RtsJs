@@ -81,8 +81,6 @@ ballGameLogic.create = function () {
             // Apply all actions
             for (var i = 0; i < actionArray.length; i++) {
                 var action = actionArray[i];
-                console.log("Applying action:");
-                console.log(action);
                 for (ballId in balls) {
                     ball = balls[ballId];
                     self.applyPush(ball, action.x, action.y);

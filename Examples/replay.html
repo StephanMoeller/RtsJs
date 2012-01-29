@@ -14,18 +14,20 @@ MIT Licensed
     <!-- This will be client script containing the "createClient" call and the game logic -->
     <script type="text/javascript">
         $(document).ready(function () {
-            
+
             // This instantiates the RTS model and hookups the calls to the game model
             $("#btnLoadReplay").click(function () {
                 var replayActionArrayBuffer = JSON.parse($("#txtReplay").val());
                 // The canvas to draw on
                 var canvas = document.getElementById('canvas');
 
-                // The game model dependency (Independent)
-                var gameLogic = ballGameLogic.create(); // Only reference to ballGame-logic.js
+                // The game model dependency (Independent). Only reference to ballGame-logic.js
+                var gameLogic = ballGameLogic.create();
 
-                // The graphical dependency (dependent on the game logic provided to it)
-                var gameUi = ballGameUi.create(gameLogic, canvas); // Only reference to ballGame-drawing.js
+                // The graphical dependency (dependent on the game logic provided to it). Only reference to ballGame-ui.js
+                var gameUi = ballGameUi.create(gameLogic, canvas, function (data) {
+                    // Ignoring actions created as the only actions processed will be thos of the replay
+                });
 
                 // Keep new actions locally and just feed the game logic with those
                 var nextActionIndex = 0;
@@ -39,20 +41,18 @@ MIT Licensed
                         gameLogic.tick(replayActionArrayBuffer[nextActionIndex]);
                         nextActionIndex++;
                     };
-                    
+
                     // Fast forward support implemented by ticking a number of times according to the value of 'playSpeed'
                     for (var i = 0; i < playSpeed; i++) {
                         tick();
                     }
-                    
+
                     // Only draw once no matter what playSpeed
                     gameUi.draw();
-                }, 40);
 
-                // UI logic
-                $("#canvas").click(function (event) {
-                    // Ignore user moves on the game. Only replay actions are applied.
-                });
+                    // Update the ui showing the game progress
+                    updateProgress(nextActionIndex, replayActionArrayBuffer.length);
+                }, 40);
 
                 // Hide replay text window and button
                 $("#replayContainer").hide();
@@ -70,6 +70,11 @@ MIT Licensed
                 $("#playSpeed").html(playSpeed);
             });
             $("#playSpeed").html(playSpeed);
+
+            var updateProgress = function (elapsedTicks, totalTicks) {
+                var percentageDone = Math.round(elapsedTicks / totalTicks * 100);
+                $("#progress").html(percentageDone + "%");
+            };
         });
     </script>
 </head>
@@ -84,5 +89,6 @@ MIT Licensed
     <canvas width="300" height="300" style="background-color: red" id="canvas"></canvas>
     <br/>
     <input type="button" id="btnDecreasePlaySpeed" value="-" />Play speed: <span id="playSpeed"></span><input type="button" id="btnIncreasePlaySpeed" value="+" />
+    <span id="progress"></span>
 </body>
 </html>
