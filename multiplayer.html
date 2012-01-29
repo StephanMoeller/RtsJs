@@ -54,7 +54,7 @@ http://www.adityaravishankar.com/2011/10/nowjs-node-js-tutorial-creating-multi-r
                 },
                 callbackTick: function (dataArray, tickNumber, bufferSize) {
                     gameLogic.tick(dataArray); // Update the actual game logic here
-                    gameDrawing.draw(gameLogic, canvas);
+                    gameDrawing.draw();
                     
                     // Debug info
                     $("#currentTickNumber").html(tickNumber);

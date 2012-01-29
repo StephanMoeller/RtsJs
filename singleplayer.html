@@ -29,7 +29,7 @@ http://www.adityaravishankar.com/2011/10/nowjs-node-js-tutorial-creating-multi-r
             var nextActionArraybuffer = [];
             setInterval(function () {
                 gameLogic.tick(nextActionArraybuffer);
-                gameDrawing.draw(gameLogic, canvas);
+                gameDrawing.draw();
                 nextActionArraybuffer = [];
             }, 40);
 
