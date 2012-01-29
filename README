@@ -8,6 +8,4 @@ Todo list:
 - Detect disconnections and close rooms accordingly
 - Send usernames to all users at startup
 - Handle when a single player disconnects (dies or closes window) and keep the game running
-- Prevent a minimized browser from piling up buffer by halting the games for all users in this case.
-  This could be implemented using repeated messages from the client to the server.
-  If this is the fix, local buffer of actions could be implemented as well.
+- Prevent a minimized browser from piling up buffer by halting the games for all users in this case. This could be implemented using repeated messages from the client to the server. If this is the fix, local buffer of actions could be implemented as well.
