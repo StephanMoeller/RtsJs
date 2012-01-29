@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<!-- 
+(c) Copyright 2011 Aditya Ravi Shankar (www.adityaravishankar.com). All Rights Reserved. 
+NowJS and Node.js Tutorial – Creating a multi room chat client
+http://www.adityaravishankar.com/2011/10/nowjs-node-js-tutorial-creating-multi-room-chat-server/
+
+-->
+<html lang="en">
+<head style="background-color: #888">
+    <title>nowjs Multi Room Chat Server</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+    <script type="text/javascript" src="/RtsJs/rtsClient.js"></script>
+    <script type="text/javascript" src="ballGame-logic.js"></script>
+    <script type="text/javascript" src="ballGame-ui.js"></script>
+    <script type="text/javascript" src="/nowjs/now.js"></script>
+    <script type="text/javascript">
+        // Client web methods
+        function queryString(key) {
+            var re = new RegExp('(?:\\?|&)' + key + '=(.*?)(?=&|$)', 'gi');
+            var r = [], m;
+            while ((m = re.exec(document.location.search)) != null) r.push(m[1]);
+            return r.toString();
+        }
+    </script>
+    
+    <!-- This script will be moved to a seperate rtsClient.js file later as it only contains non game specific logic -->
+    <script type="text/javascript">
+        
+    </script>
+
+    <!-- This will be client script containing the "createClient" call and the game logic -->
+    <script type="text/javascript">
+        // This instantiates the RTS model and hookups the calls to the game model
+        $(document).ready(function () {
+            // The canvas to draw on
+            var canvas = document.getElementById('canvas');
+            
+            // The game model dependency (Independent)
+            var gameLogic = ballGameLogic.create(); // Only reference to ballGame-logic.js
+            
+            // The graphical dependency (dependent on the game logic provided to it)
+            var gameUi = ballGameDrawing.create(gameLogic, canvas); // Only reference to ballGame-drawing.js
+
+            // The network dependency (Independent)
+            // Game actions are sent to the server and action arrays are returned from the server to be applied to the game logic
+            var client = rtsClient.create({
+                groupId: queryString("groupId"),
+                username: queryString("username"),
+                totalUserCount: parseInt(queryString("totalUserCount")),
+                // Called when all clients are connected and game is started
+                callbackStart: function () {
+                    // Debug info
+                    $("#gameStatus").html("Started");
+                },
+                callbackTick: function (dataArray, tickNumber, bufferSize) {
+                    gameLogic.tick(dataArray); // Update the actual game logic here
+                    gameUi.draw();
+                    
+                    // Debug info
+                    $("#currentTickNumber").html(tickNumber);
+                    $("#bufferSize").html(bufferSize);
+                    $("#lag").html("No lag");
+                },
+                // Called when lag is occuring. The user does not have to do anything in this case as the lag is expected to
+                // go away and the tick function we be called again
+                callbackLag: function () {
+                    // Debug info
+                    $("#lag").html("Lag");
+                }
+            });
+
+            // UI logic
+            $("#canvas").click(function (event) {
+                var x = event.pageX - this.offsetLeft;
+                var y = event.pageY - this.offsetTop;
+                var action = ballGameLogic.createAction(x, y);
+                client.addData(action);
+            });
+
+            // Functionality to generate replay
+            $("#btnGenerateReplay").click(function () {
+                $("#txtReplay").val(JSON.stringify(gameLogic.getAllActions())).show();
+            });
+        });
+    </script>
+</head>
+    <body style="background-color: #EEE;">
+        <div>
+            Game status: <span id="gameStatus">Not started</span>
+        </div>
+        <div>
+            Current tick number: <span id="currentTickNumber"></span>
+        </div>
+        <div>
+            Buffer size: <span id="bufferSize"></span>
+        </div>
+        <div>
+            Lag: <span id="lag"></span>
+        </div>
+
+        <canvas width="300" height="300" style="background-color: red" id="canvas"></canvas>
+        <br/>
+        <input type="button" id="btnGenerateReplay" value="Generate replay for copy pasting" />
+        <br/>
+        <textarea id="txtReplay" rows="10" style="display: none" cols="40"></textarea>
+    </body>
+</html>

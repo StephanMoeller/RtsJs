@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<!-- 
+(c) Copyright 2011 Aditya Ravi Shankar (www.adityaravishankar.com). All Rights Reserved. 
+NowJS and Node.js Tutorial – Creating a multi room chat client
+http://www.adityaravishankar.com/2011/10/nowjs-node-js-tutorial-creating-multi-room-chat-server/
+
+-->
+<html lang="en">
+<head style="background-color: #888">
+    <title>nowjs Multi Room Chat Server</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+    <script type="text/javascript" src="ballGame-logic.js"></script>
+    <script type="text/javascript" src="ballGame-ui.js"></script>
+
+    <!-- This will be client script containing the "createClient" call and the game logic -->
+    <script type="text/javascript">
+        // This instantiates the RTS model and hookups the calls to the game model
+        $(document).ready(function () {
+            // The canvas to draw on
+            var canvas = document.getElementById('canvas');
+
+            // The game model dependency (Independent)
+            var gameLogic = ballGameLogic.create(); // Only reference to ballGame-logic.js
+
+            // The graphical dependency (dependent on the game logic provided to it)
+            var gameUi = ballGameDrawing.create(gameLogic, canvas); // Only reference to ballGame-drawing.js
+
+            // Keep new actions locally and just feed the game logic with those
+            var nextActionArraybuffer = [];
+            setInterval(function () {
+                gameLogic.tick(nextActionArraybuffer);
+                gameUi.draw();
+                nextActionArraybuffer = [];
+            }, 40);
+
+            // UI logic
+            $("#canvas").click(function (event) {
+                var x = event.pageX - this.offsetLeft;
+                var y = event.pageY - this.offsetTop;
+                var action = ballGameLogic.createAction(x, y);
+                nextActionArraybuffer.push(action);
+            });
+
+            // Functionality to generate replay
+            $("#btnGenerateReplay").click(function () {
+                $("#txtReplay").val(JSON.stringify(gameLogic.getAllActions())).show();
+            });
+        });
+        
+
+    </script>
+</head>
+    <body style="background-color: #EEE;">
+        <canvas width="300" height="300" style="background-color: red" id="canvas"></canvas>
+        <br/>
+        <input type="button" id="btnGenerateReplay" value="Generate replay for copy pasting" />
+        <br/>
+        <textarea id="txtReplay" rows="10" style="display: none" cols="40"></textarea>
+    </body>
+</html>
