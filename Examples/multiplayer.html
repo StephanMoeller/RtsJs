@@ -58,13 +58,16 @@ MIT Licensed
                     
                     // Debug info
                     $("#currentTickNumber").html(tickNumber);
-                    $("#lag").html("No lag");
                 },
                 // Called when lag is occuring. The user does not have to do anything in this case as the lag is expected to
                 // go away and the tick function we be called again
                 callbackLag: function () {
-                    // Debug info
-                    $("#lag").html("Lag");
+                    
+                },
+                callbackDebug: function (data) {
+                    $("#lag").html(data.lag);
+                    $("#bufferSize").html(data.bufferSize);
+                    $("#targetGap").html(data.targetGap);
                 }
             });
 
@@ -87,6 +90,9 @@ MIT Licensed
         </div>
         <div>
             Lag: <span id="lag"></span>
+        </div>
+        <div>
+            Target gap: <span id="targetGap"></span>
         </div>
 
         <canvas width="300" height="300" style="background-color: red" id="canvas"></canvas>

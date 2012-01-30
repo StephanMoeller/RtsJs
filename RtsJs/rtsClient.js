@@ -7,35 +7,70 @@
 // data contains: username, groupId, totalUserCount, callbackStart, callbackTick, callbackLag
 var rtsClient = { };
 rtsClient.create = function (data) {
-    var inputActionArrayBuffer = { 0: [], 1: [], 2: [] }; // Prefilled with an entry on first space
+    var inputActionArrayBuffer = {}; // Prefilled with an entry on first space
     var outputActionArrayBuffer = []; // Prefilled with an entry on first space
 
-    var nextInputTickNumber = 0;
+    var currentInputTickNumber = 0;
     var targetGap = 3; // The gap to be between next input and next output
+    var gameTicksPerNetworkTick = 3;
+    var currentGameTick = 0;
+
+    // Initialize input buffer
+    for (var i = 0; i < targetGap; i++) {
+        inputActionArrayBuffer[i] = [];
+    }
 
     var tick = function () {
         // Check if next input is missing
-        var nextArrayToProcess = inputActionArrayBuffer[nextInputTickNumber];
+        var nextArrayToProcess = inputActionArrayBuffer[currentInputTickNumber];
         if (nextArrayToProcess === undefined) {
             data.callbackLag();
             return;
         }
-        console.log("Process at " + nextInputTickNumber);
+
+        // If this is an empty tick, just tick the client
+        currentGameTick++;
+        if (currentGameTick < gameTicksPerNetworkTick) {
+            currentGameTick++;
+            data.callbackTick(currentInputTickNumber * gameTicksPerNetworkTick + currentGameTick, []); // This will call tick function with ticks 1, 2, 4, 5, 7, 8
+            return;
+        }
+        currentGameTick = 0;
 
         // Send next output
-        now.serverAddActions(nextInputTickNumber + targetGap, outputActionArrayBuffer);
+        now.serverAddActions(currentInputTickNumber + targetGap, outputActionArrayBuffer);
 
         // Process next input
-        data.callbackTick(nextInputTickNumber, nextArrayToProcess);
+        data.callbackTick(currentInputTickNumber * gameTicksPerNetworkTick, nextArrayToProcess); // This will call tick function with tick 0, 3, 6, 9, 12....
 
         // Count up tick number and erase output buffer
-        nextInputTickNumber++;
+        currentInputTickNumber++;
         outputActionArrayBuffer = [];
+
+        updateDebugInfo();
+    };
+
+    // Notify log info
+    var updateDebugInfo = function () {
+        if (data.callbackDebug !== undefined) {
+            var highestReceivedTickNumber = currentInputTickNumber;
+            while (inputActionArrayBuffer[highestReceivedTickNumber] !== undefined)
+                highestReceivedTickNumber++;
+
+            var bufferSize = highestReceivedTickNumber - currentInputTickNumber;
+            var lag = inputActionArrayBuffer[currentInputTickNumber] === undefined;
+            data.callbackDebug({
+                targetGap: targetGap, // The desired gap between the processed tick number and the next sent tick number from the client to the server
+                bufferSize: bufferSize,
+                lag: lag,
+                currentTickNumber: currentInputTickNumber + currentGameTick
+            });
+        }
     };
 
     now.clientStart = function () {
         data.callbackStart();
-        setInterval(tick, 40); // TODO: Bring down network by ticking multiple times per network transmission
+        setInterval(tick, 40);
     };
 
     // Called by the server with fixed intervals. This is the way the server synchronizes the clients.

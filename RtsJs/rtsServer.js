@@ -1,6 +1,3 @@
-
-
-
 /*!
 * RtsJs - rtsServer
 * Copyright(c) 2012 Stephan Ryer <stephanryer@hotmail.com>
@@ -76,6 +73,8 @@ exports.createServer = function (server) {
     };
 };
 
+// A helper class which allows the user to add actions for different usernames and returns single,
+// concatenated arrays of action when adding an action array from a user results in having actions for all users.
 var createActionController = function () {
     var self = {};
     self.userActionBuffer = {}; //Username, Object as dictionary of key: ticknumber, value: Array of actions
