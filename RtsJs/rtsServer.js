@@ -57,11 +57,11 @@ exports.createServer = function (server) {
                         group.now.clientStart();
 
                         // Tells the server to add the specified data to the next data array sent by the server to all clients.
-                        group.now.serverAddActions = function (tickNumber, actionArray) {
-                            console.log("Received data from user " + this.now.username + " for tick number " + tickNumber);
-                            var outputArray = group.actionController.addActions(this.now.username, tickNumber, actionArray);
+                        group.now.serverAddActions = function (turn, actionArray) {
+                            console.log("Received data from user " + this.now.username + " for turn " + turn);
+                            var outputArray = group.actionController.addActions(this.now.username, turn, actionArray);
                             if (outputArray !== null)
-                                group.now.clientAddActions(tickNumber, outputArray);
+                                group.now.clientAddActions(turn, outputArray);
                         };
                     } else {
                         // CONSOLE LOG INFO ABOUT NEW GROUP
@@ -77,7 +77,7 @@ exports.createServer = function (server) {
 // concatenated arrays of action when adding an action array from a user results in having actions for all users.
 var createActionController = function () {
     var self = {};
-    self.userActionBuffer = {}; //Username, Object as dictionary of key: ticknumber, value: Array of actions
+    self.userActionBuffer = {}; //Username, Object as dictionary of key: turn, value: Array of actions
     return {
         addUser: function (username) {
             if (self.userActionBuffer[username] !== undefined)
@@ -89,33 +89,33 @@ var createActionController = function () {
                 throw "username '" + username + "' does not exist.";
             delete self.userActionBuffer[username];
         },
-        // Adds actions for a user and a specific tick number.
-        // If all users have added actions for the specific tick number, a single array is returned containing all users actions for the given tick number.
+        // Adds actions for a user and a specific turn.
+        // If all users have added actions for the specific turn, a single array is returned containing all users actions for the given turn.
         // Elseway, null is returned.
-        addActions: function (username, tickNumber, actionArray) {
+        addActions: function (username, turn, actionArray) {
             var userBuffer = self.userActionBuffer[username];
             // Param validations
             if (userBuffer === undefined)
                 throw "username '" + username + "' does not exist.";
-            if (userBuffer[tickNumber] !== undefined) {
-                throw "user '" + username + "' has already added an action array for ticknumber " + tickNumber + ". Value: " + self.userActionBuffer[username][tickNumber];
+            if (userBuffer[turn] !== undefined) {
+                throw "user '" + username + "' has already added an action array for turnnumber " + turn + ". Value: " + self.userActionBuffer[username][turn];
             }
 
-            // Add tick array
-            userBuffer[tickNumber] = actionArray;
+            // Add turn array
+            userBuffer[turn] = actionArray;
 
-            // Check if all users have added an action array for the current ticknumber. If so, return a single array of all actions by all players fir the given ticknumber
-            var allActionsForCurrentTickNumber = [];
+            // Check if all users have added an action array for the current turn. If so, return a single array of all actions by all players fir the given turn
+            var allActionsForCurrentTurn = [];
             for (username in self.userActionBuffer) {
-                var currentUserBuffer = self.userActionBuffer[username][tickNumber];
+                var currentUserBuffer = self.userActionBuffer[username][turn];
                 if (currentUserBuffer === undefined)
-                    return null; // Found a user that has not yet added a tick array for the given tick number
+                    return null; // Found a user that has not yet added a turn array for the given turn number
                 // Add all actions in actions array to the array to be returned
                 for (var i = 0; i < currentUserBuffer.length; i++) {
-                    allActionsForCurrentTickNumber.push(currentUserBuffer[i]);
+                    allActionsForCurrentTurn.push(currentUserBuffer[i]);
                 }
             }
-            return allActionsForCurrentTickNumber;
+            return allActionsForCurrentTurn;
         }
     };
 };

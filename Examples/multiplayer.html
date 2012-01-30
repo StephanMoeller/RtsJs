@@ -52,12 +52,9 @@ MIT Licensed
                     // Debug info
                     $("#gameStatus").html("Started");
                 },
-                callbackTick: function (tickNumber, dataArray) {
+                callbackTick: function (dataArray) {
                     gameLogic.tick(dataArray); // Update the actual game logic here
                     gameUi.draw();
-                    
-                    // Debug info
-                    $("#currentTickNumber").html(tickNumber);
                 },
                 // Called when lag is occuring. The user does not have to do anything in this case as the lag is expected to
                 // go away and the tick function we be called again
@@ -68,6 +65,8 @@ MIT Licensed
                     $("#lag").html(data.lag);
                     $("#bufferSize").html(data.bufferSize);
                     $("#targetGap").html(data.targetGap);
+                    // Debug info
+                    $("#currentTurn").html(currentNetworkTurn);
                 }
             });
 
@@ -83,7 +82,7 @@ MIT Licensed
             Game status: <span id="gameStatus">Not started</span>
         </div>
         <div>
-            Current tick number: <span id="currentTickNumber"></span>
+            Current network turn: <span id="currentTurn"></span>
         </div>
         <div>
             Buffer size: <span id="bufferSize"></span>

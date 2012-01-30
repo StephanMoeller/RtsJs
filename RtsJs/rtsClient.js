@@ -7,77 +7,48 @@
 // data contains: username, groupId, totalUserCount, callbackStart, callbackTick, callbackLag
 var rtsClient = { };
 rtsClient.create = function (data) {
-    var inputActionArrayBuffer = {}; // Prefilled with an entry on first space
-    var outputActionArrayBuffer = []; // Prefilled with an entry on first space
+    var inputActionArrayBuffer = {};
+    var outputActionArrayBuffer = [];
 
-    var currentInputTickNumber = 0;
-    var targetGap = 3; // The gap to be between next input and next output
-    var gameTicksPerNetworkTick = 3;
-    var currentGameTick = 0;
+    var currentNetworkTurn = 0;
+    var futureExecutionStepDelay = 2; // The gap to be between next input and next output
 
-    // Initialize input buffer
-    for (var i = 0; i < targetGap; i++) {
+    // Initialize input buffer with ampty entries
+    for (var i = 0; i < futureExecutionStepDelay; i++) {
         inputActionArrayBuffer[i] = [];
     }
 
-    var tick = function () {
+    var doNetworkTurn = function () {
         // Check if next input is missing
-        var nextArrayToProcess = inputActionArrayBuffer[currentInputTickNumber];
+        var nextArrayToProcess = inputActionArrayBuffer[currentNetworkTurn];
         if (nextArrayToProcess === undefined) {
             data.callbackLag();
             return;
         }
 
-        // If this is an empty tick, just tick the client
-        currentGameTick++;
-        if (currentGameTick < gameTicksPerNetworkTick) {
-            currentGameTick++;
-            data.callbackTick(currentInputTickNumber * gameTicksPerNetworkTick + currentGameTick, []); // This will call tick function with ticks 1, 2, 4, 5, 7, 8
-            return;
-        }
-        currentGameTick = 0;
-
         // Send next output
-        now.serverAddActions(currentInputTickNumber + targetGap, outputActionArrayBuffer);
+        now.serverAddActions(currentNetworkTurn + futureExecutionStepDelay, outputActionArrayBuffer);
 
         // Process next input
-        data.callbackTick(currentInputTickNumber * gameTicksPerNetworkTick, nextArrayToProcess); // This will call tick function with tick 0, 3, 6, 9, 12....
+        data.callbackTick(nextArrayToProcess);
 
         // Count up tick number and erase output buffer
-        currentInputTickNumber++;
+        currentNetworkTurn++;
         outputActionArrayBuffer = [];
 
         updateDebugInfo();
     };
 
-    // Notify log info
-    var updateDebugInfo = function () {
-        if (data.callbackDebug !== undefined) {
-            var highestReceivedTickNumber = currentInputTickNumber;
-            while (inputActionArrayBuffer[highestReceivedTickNumber] !== undefined)
-                highestReceivedTickNumber++;
-
-            var bufferSize = highestReceivedTickNumber - currentInputTickNumber;
-            var lag = inputActionArrayBuffer[currentInputTickNumber] === undefined;
-            data.callbackDebug({
-                targetGap: targetGap, // The desired gap between the processed tick number and the next sent tick number from the client to the server
-                bufferSize: bufferSize,
-                lag: lag,
-                currentTickNumber: currentInputTickNumber + currentGameTick
-            });
-        }
-    };
-
     now.clientStart = function () {
         data.callbackStart();
-        setInterval(tick, 40);
+        setInterval(doNetworkTurn, 40);
     };
 
     // Called by the server with fixed intervals. This is the way the server synchronizes the clients.
-    now.clientAddActions = function (tickNumber, actionArray) {
-        if (inputActionArrayBuffer[tickNumber] !== undefined)
-            throw "Client has already received data with tick number " + tickNumber;
-        inputActionArrayBuffer[tickNumber] = actionArray;
+    now.clientAddActions = function (turn, actionArray) {
+        if (inputActionArrayBuffer[turn] !== undefined)
+            throw "Client has already received data with tick number " + turn;
+        inputActionArrayBuffer[turn] = actionArray;
     };
 
     // Call the serverJoinGroup function on the server when now is set up
@@ -85,6 +56,24 @@ rtsClient.create = function (data) {
         now.serverJoinGroup(data.username, data.groupId, data.totalUserCount);
     });
 
+    // Notify log info
+    var updateDebugInfo = function () {
+        if (data.callbackDebug !== undefined) {
+            var highestReceivedTurn = currentNetworkTurn;
+            while (inputActionArrayBuffer[highestReceivedTurn] !== undefined)
+                highestReceivedTurn++;
+
+            var bufferSize = highestReceivedTurn - currentNetworkTurn;
+            var lag = inputActionArrayBuffer[currentNetworkTurn] === undefined;
+            data.callbackDebug({
+                targetGap: futureExecutionStepDelay, // The desired gap between the processed tick number and the next sent tick number from the client to the server
+                bufferSize: bufferSize,
+                lag: lag,
+                currentNetworkTurn: currentNetworkTurn
+            });
+        }
+    };
+    
     return {
         addData: function (action) {
             // Tells the server to add the specified data to the next data array sent by the server to all clients.
