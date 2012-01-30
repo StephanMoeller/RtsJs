@@ -1,3 +1,6 @@
+
+
+
 /*!
 * RtsJs - rtsServer
 * Copyright(c) 2012 Stephan Ryer <stephanryer@hotmail.com>
@@ -7,13 +10,8 @@ exports.createServer = function (server) {
     return {
         init: function () {
             var nowjs = require("now");
+
             var everyone = nowjs.initialize(server);
-
-            // Setup variables accesible from the client
-            everyone.now.gameTickRateMs = 40; // Game updates logic every 40 ms
-            everyone.now.gameTickRatesPerDataArray = 8; // The number of game tick rates per time the server sends data to the clients
-
-            var serverSendRateMs = everyone.now.gameTickRateMs * (everyone.now.gameTickRatesPerDataArray + 1); // gameTickRateMs * gameTickRatesPerDataArray;
 
             // Lets the user join a group with a specified groupId.
             // When the group is full (the user count in the group equals the callers value of 'totalUserCount'),
@@ -41,6 +39,12 @@ exports.createServer = function (server) {
                 this.now.username = username;
                 group.addUser(this.user.clientId);
 
+                // Add action controller if user first in group.
+                if (group.actionController === undefined)
+                    group.actionController = createActionController();
+                // Add user to the action controller
+                group.actionController.addUser(this.now.username);
+
                 // Start game if group full
                 group.count(function (count) {
                     if (count > totalUserCount) {
@@ -48,40 +52,71 @@ exports.createServer = function (server) {
                         console.log("For some odd reason, the total count of group " + count + " exceeds the desired totalUserCount of " + totalUserCount);
                         return;
                     } else if (count === totalUserCount) {
+                        // START SYNCHRONIZING GROUP
                         group.started = true;
                         console.log("Starting group " + groupId);
-
-                        // Start ticking
-                        var serverDataTickNumber = 0;
-                        var nextDataArray = [];
 
                         // Called by server when all clients are connected and the game is about to start
                         group.now.clientStart();
 
                         // Tells the server to add the specified data to the next data array sent by the server to all clients.
-                        group.now.serverAddToNextDataArray = function (data) {
-                            nextDataArray.push(data);
+                        group.now.serverAddActions = function (tickNumber, actionArray) {
+                            console.log("Received data from user " + this.now.username + " for tick number " + tickNumber);
+                            var outputArray = group.actionController.addActions(this.now.username, tickNumber, actionArray);
+                            if (outputArray !== null)
+                                group.now.clientAddActions(tickNumber, outputArray);
                         };
-
-                        var tickFunction = function () {
-                            group = nowjs.getGroup(groupId);
-                            // Flush the buffer to the clients
-                            group.now.clientAddData(serverDataTickNumber, nextDataArray);
-                            // Clear the buffer and count up the tick number
-                            nextDataArray = [];
-                            console.log("Sending ticknumber " + serverDataTickNumber);
-                            serverDataTickNumber += everyone.now.gameTickRatesPerDataArray;
-                        };
-                        setInterval(tickFunction, serverSendRateMs);
-                        tickFunction();
                     } else {
+                        // CONSOLE LOG INFO ABOUT NEW GROUP
                         console.log("Group now has " + count + "/" + totalUserCount + " users");
                     }
                 });
             };
+        }
+    };
+};
+
+var createActionController = function () {
+    var self = {};
+    self.userActionBuffer = {}; //Username, Object as dictionary of key: ticknumber, value: Array of actions
+    return {
+        addUser: function (username) {
+            if (self.userActionBuffer[username] !== undefined)
+                throw "username '" + username + "' already exists.";
+            self.userActionBuffer[username] = {};
         },
-        stop: function () {
-            server.stop(); // TODO: Find out how to ac1tually stop the server.
+        removeUser: function (username) {
+            if (self.userActionBuffer[username] === undefined)
+                throw "username '" + username + "' does not exist.";
+            delete self.userActionBuffer[username];
+        },
+        // Adds actions for a user and a specific tick number.
+        // If all users have added actions for the specific tick number, a single array is returned containing all users actions for the given tick number.
+        // Elseway, null is returned.
+        addActions: function (username, tickNumber, actionArray) {
+            var userBuffer = self.userActionBuffer[username];
+            // Param validations
+            if (userBuffer === undefined)
+                throw "username '" + username + "' does not exist.";
+            if (userBuffer[tickNumber] !== undefined) {
+                throw "user '" + username + "' has already added an action array for ticknumber " + tickNumber + ". Value: " + self.userActionBuffer[username][tickNumber];
+            }
+
+            // Add tick array
+            userBuffer[tickNumber] = actionArray;
+
+            // Check if all users have added an action array for the current ticknumber. If so, return a single array of all actions by all players fir the given ticknumber
+            var allActionsForCurrentTickNumber = [];
+            for (username in self.userActionBuffer) {
+                var currentUserBuffer = self.userActionBuffer[username][tickNumber];
+                if (currentUserBuffer === undefined)
+                    return null; // Found a user that has not yet added a tick array for the given tick number
+                // Add all actions in actions array to the array to be returned
+                for (var i = 0; i < currentUserBuffer.length; i++) {
+                    allActionsForCurrentTickNumber.push(currentUserBuffer[i]);
+                }
+            }
+            return allActionsForCurrentTickNumber;
         }
     };
 };

@@ -1,4 +1,4 @@
-﻿/*!
+﻿/*!]
 * RtsJs - rtsClient
 * Copyright(c) 2012 Stephan Ryer <stephanryer@hotmail.com>
 * MIT Licensed
@@ -7,52 +7,42 @@
 // data contains: username, groupId, totalUserCount, callbackStart, callbackTick, callbackLag
 var rtsClient = { };
 rtsClient.create = function (data) {
+    var inputActionArrayBuffer = { 0: [], 1: [], 2: [] }; // Prefilled with an entry on first space
+    var outputActionArrayBuffer = []; // Prefilled with an entry on first space
 
-    var dataBuffer = {};
-    var currentGameTickNumber = 0;
-    var lastAddedGameTickNumber = 0;
+    var nextInputTickNumber = 0;
+    var targetGap = 3; // The gap to be between next input and next output
 
-    // Fetching the next data array from the buffer and calling the callbackTick function
-    var gameTick = function () {
-        if (dataBuffer[currentGameTickNumber] === undefined) {
+    var tick = function () {
+        // Check if next input is missing
+        var nextArrayToProcess = inputActionArrayBuffer[nextInputTickNumber];
+        if (nextArrayToProcess === undefined) {
             data.callbackLag();
             return;
         }
-        var dataArray = dataBuffer[currentGameTickNumber];
-        delete dataBuffer[currentGameTickNumber];
-        var currentBufferSize = lastAddedGameTickNumber - currentGameTickNumber;
-        data.callbackTick(dataArray, currentGameTickNumber, currentBufferSize);
-        currentGameTickNumber++;
+        console.log("Process at " + nextInputTickNumber);
+
+        // Send next output
+        now.serverAddActions(nextInputTickNumber + targetGap, outputActionArrayBuffer);
+
+        // Process next input
+        data.callbackTick(nextInputTickNumber, nextArrayToProcess);
+
+        // Count up tick number and erase output buffer
+        nextInputTickNumber++;
+        outputActionArrayBuffer = [];
     };
 
-    // Called by server when all clients are connected and the game is about to start
-    var gameTickRateMs; // Game updates logic every 40 ms - read from server variables
-    var gameTickRatesPerDataArray; // The number of game tick rates per time the server sends data to the clients - read from server variables
     now.clientStart = function () {
-        gameTickRateMs = now.gameTickRateMs;
-        gameTickRatesPerDataArray = now.gameTickRatesPerDataArray;
-        setInterval(gameTick, gameTickRateMs);
         data.callbackStart();
+        setInterval(tick, 40); // TODO: Bring down network by ticking multiple times per network transmission
     };
 
     // Called by the server with fixed intervals. This is the way the server synchronizes the clients.
-    now.clientAddData = function (gameTickNumber, dataArray) {
-        if (dataBuffer[gameTickNumber] !== undefined)
-            throw "Client has already received data with tick number " + gameTickNumber;
-
-        // Add data array
-        dataBuffer[gameTickNumber] = dataArray; // dataArray might or might not be empty
-
-        // Add empty entries to the buffer as the server won't be able to send data for each game update
-        var nextDataGamePosition = gameTickNumber + gameTickRatesPerDataArray;
-        gameTickNumber++;
-        while (gameTickNumber < nextDataGamePosition) {
-            dataBuffer[gameTickNumber] = [];
-            gameTickNumber++;
-        }
-
-        // For stats purpose only
-        lastAddedGameTickNumber = gameTickNumber;
+    now.clientAddActions = function (tickNumber, actionArray) {
+        if (inputActionArrayBuffer[tickNumber] !== undefined)
+            throw "Client has already received data with tick number " + tickNumber;
+        inputActionArrayBuffer[tickNumber] = actionArray;
     };
 
     // Call the serverJoinGroup function on the server when now is set up
@@ -61,9 +51,9 @@ rtsClient.create = function (data) {
     });
 
     return {
-        addData: function (dataToSendToServer) {
+        addData: function (action) {
             // Tells the server to add the specified data to the next data array sent by the server to all clients.
-            now.serverAddToNextDataArray(dataToSendToServer);
+            outputActionArrayBuffer.push(action);
         }
     };
 };
