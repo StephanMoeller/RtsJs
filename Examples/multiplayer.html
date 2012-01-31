@@ -28,6 +28,8 @@ MIT Licensed
     <script type="text/javascript">
         // This instantiates the RTS model and hookups the calls to the game model
         $(document).ready(function () {
+            $("#gamePanel").hide();
+
             // The canvas to draw on
             var canvas = document.getElementById('canvas');
 
@@ -49,6 +51,8 @@ MIT Licensed
                 callbackStart: function () {
                     // Debug info
                     $("#gameStatus").html("Started");
+                    $("#loadingPanel").hide();
+                    $("#gamePanel").show();
                 },
                 callbackTick: function (dataArray) {
                     gameLogic.tick(dataArray); // Update the actual game logic here
@@ -59,6 +63,7 @@ MIT Licensed
                 callbackLag: function () {
 
                 },
+
                 callbackDebug: function (data) {
                     $("#lag").html(data.lag);
                     $("#bufferSize").html(data.bufferSize);
@@ -66,6 +71,7 @@ MIT Licensed
                     // Debug info
                     $("#currentTurn").html(data.currentNetworkTurn);
                     $("#latency").html(data.latency);
+                    $("#latencySelector").val(data.latency);
                 }
             });
 
@@ -74,47 +80,59 @@ MIT Licensed
                 $("#txtReplay").val(JSON.stringify(gameLogic.getAllActions())).show();
             });
 
-            $("#latencySelector").change(function () {
+            $("#latencySelector").click(function () {
                 var val = $(this).val();
                 client.setLatency(parseInt(val));
             });
         });
     </script>
 </head>
-<body style="background-color: #444;">
-    <div>
-        Game status: <span id="gameStatus">Not started</span>
-    </div>
-    <div>
-        Current network turn: <span id="currentTurn"></span>
-    </div>
-    <div>
-        Buffer size: <span id="bufferSize"></span>
-    </div>
-    <div>
-        Lag: <span id="lag"></span>
-    </div>
-    <div>
-        Latency: <span id="latency"></span>
-    </div>
-    <div>
-        Target gap: <span id="targetGap"></span>
-    </div>
-    <canvas width="300" height="300" id="canvas"></canvas>
-    <br />
-    Select latency:
-    <select id="latencySelector">
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4">4</option>
-        <option value="6">6</option>
-        <option value="8">8</option>
-        <option value="10">10</option>
-    </select>
-    <br />
-    <input type="button" id="btnGenerateReplay" value="Generate replay for copy pasting" />
-    <br />
-    <textarea id="txtReplay" rows="10" style="display: none" cols="40"></textarea>
-</body>
+    <body style="background-color: #444; color: white; font-family: arial;">
+        <div id="loadingPanel">
+            Connecting...
+        </div>
+        <div id="gamePanel">
+            <div>
+                Game status: <span id="gameStatus">Not started</span>
+            </div>
+            <div>
+                Current network turn: <span id="currentTurn"></span>
+            </div>
+            <div>
+                Buffer size: <span id="bufferSize"></span>
+            </div>
+            <div>
+                Lag: <span id="lag"></span>
+            </div>
+            <div>
+                Latency: <span id="latency"></span>
+            </div>
+            <div>
+                Target gap: <span id="targetGap"></span>
+            </div>
+            <canvas width="300" height="300" id="canvas"></canvas>
+            <br />
+            Select latency:
+            <select id="latencySelector">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="6">6</option>
+                <option value="8">8</option>
+                <option value="10">10</option>
+            </select>
+            <div>
+                Latency is adjustable realtime.
+                <br />
+                Lower latency = faster response time
+                <br />
+                higher latency = less network usage.
+            </div>
+            <br />
+            <input type="button" id="btnGenerateReplay" value="Generate replay for copy pasting" />
+            <br />
+            <textarea id="txtReplay" rows="10" style="display: none" cols="40"></textarea>
+        </div>
+    </body>
 </html>
