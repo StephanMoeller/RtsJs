@@ -5,7 +5,7 @@ Copyright(c) 2012 Stephan Ryer <stephanryer@hotmail.com>
 MIT Licensed
 -->
 <html lang="en">
-<head style="background-color: #888">
+<head>
     <title>nowjs Multi Room Chat Server</title>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
     <script type="text/javascript" src="ballGame-logic.js"></script>
@@ -78,7 +78,7 @@ MIT Licensed
         });
     </script>
 </head>
-<body style="background-color: #EEE;">
+<body style="background-color: #444;">
     
     <div id="replayContainer">
         <input type="button" id="btnLoadReplay" value="Load replay from textbow below" />
@@ -86,7 +86,7 @@ MIT Licensed
         <textarea id="txtReplay" rows="10" cols="40"></textarea>
     </div>
     
-    <canvas width="300" height="300" style="background-color: red" id="canvas"></canvas>
+    <canvas width="300" height="300" id="canvas"></canvas>
     <br/>
     <input type="button" id="btnDecreasePlaySpeed" value="-" />Play speed: <span id="playSpeed"></span><input type="button" id="btnIncreasePlaySpeed" value="+" />
     <span id="progress"></span>

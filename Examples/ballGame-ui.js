@@ -15,6 +15,11 @@ ballGameUi.create = function (gameLogic, canvas, actionCreatedCallback) {
     self.screenHeight = canvas.height;
     self.actionCreatedCallback = actionCreatedCallback;
 
+    var preRenderCanvas = document.createElement('canvas');
+    preRenderCanvas.width = self.screenWidth;
+    preRenderCanvas.height = self.screenHeight;
+    var preCtx = preRenderCanvas.getContext('2d');
+
     // Setup input listening and action creation here
     var jqueryCanvas = $("#" + canvas.id);
     jqueryCanvas.click(function (event) {
@@ -24,17 +29,41 @@ ballGameUi.create = function (gameLogic, canvas, actionCreatedCallback) {
         actionCreatedCallback(action);
     });
 
+    var clearScreen = function () {
+        preCtx.fillStyle = "#333";
+        preCtx.fillRect(0, 0, self.screenWidth, self.screenHeight);
+    };
+
     return {
         draw: function () {
-            self.ctx.clearRect(0, 0, self.screenWidth, self.screenHeight);
+            // Clear screen
+            clearScreen();
+
+            // Draw all balls
             var balls = gameLogic.getBalls();
-            for (var ballId in balls) {
-                var ball = balls[ballId];
-                self.ctx.beginPath();
-                self.ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-                self.ctx.closePath();
-                self.ctx.fill();
+            var ballId;
+            var ball;
+
+            preCtx.beginPath();
+            preCtx.fillStyle = "#000";
+            for (ballId in balls) {
+                ball = balls[ballId];
+                preCtx.arc(ball.x + 2, ball.y + 2, ball.radius + 2, 0, Math.PI * 2);
             }
+            preCtx.closePath();
+            preCtx.fill();
+
+            preCtx.beginPath();
+            preCtx.fillStyle = "#FFF";
+            for (ballId in balls) {
+                ball = balls[ballId];
+                preCtx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            }
+            preCtx.closePath();
+            preCtx.fill();
+
+            // Apply prerender
+            self.ctx.drawImage(preRenderCanvas, 0, 0);
         }
     };
 }
