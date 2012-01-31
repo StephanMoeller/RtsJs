@@ -20,12 +20,10 @@ MIT Licensed
             return r.toString();
         }
     </script>
-    
     <!-- This script will be moved to a seperate rtsClient.js file later as it only contains non game specific logic -->
     <script type="text/javascript">
         
     </script>
-
     <!-- This will be client script containing the "createClient" call and the game logic -->
     <script type="text/javascript">
         // This instantiates the RTS model and hookups the calls to the game model
@@ -59,7 +57,7 @@ MIT Licensed
                 // Called when lag is occuring. The user does not have to do anything in this case as the lag is expected to
                 // go away and the tick function we be called again
                 callbackLag: function () {
-                    
+
                 },
                 callbackDebug: function (data) {
                     $("#lag").html(data.lag);
@@ -67,6 +65,7 @@ MIT Licensed
                     $("#targetGap").html(data.targetGap);
                     // Debug info
                     $("#currentTurn").html(data.currentNetworkTurn);
+                    $("#latency").html(data.latency);
                 }
             });
 
@@ -74,30 +73,48 @@ MIT Licensed
             $("#btnGenerateReplay").click(function () {
                 $("#txtReplay").val(JSON.stringify(gameLogic.getAllActions())).show();
             });
+
+            $("#latencySelector").change(function () {
+                var val = $(this).val();
+                client.setLatency(parseInt(val));
+            });
         });
     </script>
 </head>
-    <body style="background-color: #444;">
-        <div>
-            Game status: <span id="gameStatus">Not started</span>
-        </div>
-        <div>
-            Current network turn: <span id="currentTurn"></span>
-        </div>
-        <div>
-            Buffer size: <span id="bufferSize"></span>
-        </div>
-        <div>
-            Lag: <span id="lag"></span>
-        </div>
-        <div>
-            Target gap: <span id="targetGap"></span>
-        </div>
-
-        <canvas width="300" height="300" id="canvas"></canvas>
-        <br/>
-        <input type="button" id="btnGenerateReplay" value="Generate replay for copy pasting" />
-        <br/>
-        <textarea id="txtReplay" rows="10" style="display: none" cols="40"></textarea>
-    </body>
+<body style="background-color: #444;">
+    <div>
+        Game status: <span id="gameStatus">Not started</span>
+    </div>
+    <div>
+        Current network turn: <span id="currentTurn"></span>
+    </div>
+    <div>
+        Buffer size: <span id="bufferSize"></span>
+    </div>
+    <div>
+        Lag: <span id="lag"></span>
+    </div>
+    <div>
+        Latency: <span id="latency"></span>
+    </div>
+    <div>
+        Target gap: <span id="targetGap"></span>
+    </div>
+    <canvas width="300" height="300" id="canvas"></canvas>
+    <br />
+    Select latency:
+    <select id="latencySelector">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="6">6</option>
+        <option value="8">8</option>
+        <option value="10">10</option>
+    </select>
+    <br />
+    <input type="button" id="btnGenerateReplay" value="Generate replay for copy pasting" />
+    <br />
+    <textarea id="txtReplay" rows="10" style="display: none" cols="40"></textarea>
+</body>
 </html>
