@@ -8,10 +8,5 @@ To test multiplayer: Run http://localhost:8080/multiroom.html
 
 Todo list:
 
-- Close rooms when only 1 player left.
-- Detect disconnections and close rooms accordingly
 - Send usernames to all users at startup
-- Handle when a single player disconnects (dies or closes window) and keep the game running
-- Add functionality for the users to adjust latency in order to prevent lag and instead just have slower responsetimes (latency adjustment functionality known from starcraft 1).
-Done:
-- Prevent a minimized browser from piling up buffer by halting the games for all users in this case. This could be implemented using repeated messages from the client to the server. If this is the fix, local buffer of actions could be implemented as well.
+- Handle when a player disconnects (dies or closes window) and keep the game running
