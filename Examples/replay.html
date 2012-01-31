@@ -25,7 +25,7 @@ MIT Licensed
                 var gameLogic = ballGameLogic.create();
 
                 // The graphical dependency (dependent on the game logic provided to it). Only reference to ballGame-ui.js
-                var gameUi = ballGameUi.create(gameLogic, canvas, function (data) {
+                var gameUi = ballGameUi.create(gameLogic, canvas, function (gameCommand) {
                     // Ignoring actions created as the only actions processed will be thos of the replay
                 });
 

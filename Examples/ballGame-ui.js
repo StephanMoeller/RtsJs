@@ -8,12 +8,12 @@
 * This file contains logic handling drawing and inputs
 */
 var ballGameUi = {};
-ballGameUi.create = function (gameLogic, canvas, actionCreatedCallback) {
+ballGameUi.create = function (gameLogic, canvas, gameCommandCreatedCallback) {
     var self = {};
     self.ctx = canvas.getContext('2d');
     self.screenWidth = canvas.width;
     self.screenHeight = canvas.height;
-    self.actionCreatedCallback = actionCreatedCallback;
+    self.gameCommandCreatedCallback = gameCommandCreatedCallback;
 
     var preRenderCanvas = document.createElement('canvas');
     preRenderCanvas.width = self.screenWidth;
@@ -26,7 +26,7 @@ ballGameUi.create = function (gameLogic, canvas, actionCreatedCallback) {
         var x = event.pageX - this.offsetLeft;
         var y = event.pageY - this.offsetTop;
         var action = ballGameLogic.createAction(x, y);
-        actionCreatedCallback(action);
+        gameCommandCreatedCallback(action);
     });
 
     var clearScreen = function () {

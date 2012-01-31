@@ -22,8 +22,8 @@ MIT Licensed
             var gameLogic = ballGameLogic.create();
 
             // The graphical dependency (dependent on the game logic provided to it). Only reference to ballGame-ui.js
-            var gameUi = ballGameUi.create(gameLogic, canvas, function (action) {
-                nextActionArraybuffer.push(action);
+            var gameUi = ballGameUi.create(gameLogic, canvas, function (gameCommand) {
+                nextActionArraybuffer.push(gameCommand);
             });
 
             // Keep new actions locally and just feed the game logic with those
