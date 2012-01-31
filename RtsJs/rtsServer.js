@@ -3,6 +3,12 @@
 * Copyright(c) 2012 Stephan Ryer <stephanryer@hotmail.com>
 * MIT Licensed
 */
+var createEmptyTurnData = function () {
+    return {
+        systemCommands: [],
+        gameCommands: []
+    };
+};
 exports.createServer = function (server) {
     return {
         init: function () {
@@ -37,10 +43,10 @@ exports.createServer = function (server) {
                 group.addUser(this.user.clientId);
 
                 // Add action controller if user first in group.
-                if (group.actionController === undefined)
-                    group.actionController = createActionController();
+                if (group.turnDataCollector === undefined)
+                    group.turnDataCollector = createTurnDataCollector();
                 // Add user to the action controller
-                group.actionController.addUser(this.now.username);
+                group.turnDataCollector.addUser(this.now.username);
 
                 // Start game if group full
                 group.count(function (count) {
@@ -57,11 +63,11 @@ exports.createServer = function (server) {
                         group.now.clientStart();
 
                         // Tells the server to add the specified data to the next data array sent by the server to all clients.
-                        group.now.serverAddActions = function (turn, actionArray) {
-                            console.log("Received data from user " + this.now.username + " for turn " + turn);
-                            var outputArray = group.actionController.addActions(this.now.username, turn, actionArray);
-                            if (outputArray !== null)
-                                group.now.clientAddActions(turn, outputArray);
+                        group.now.serverAddTurnData = function (turn, turnData) {
+                            var mergedTurnData = group.turnDataCollector.addTurnData(this.now.username, turn, turnData);
+                            if (mergedTurnData !== null) {
+                                group.now.clientAddTurnData(turn, mergedTurnData);
+                            }
                         };
                     } else {
                         // CONSOLE LOG INFO ABOUT NEW GROUP
@@ -75,25 +81,25 @@ exports.createServer = function (server) {
 
 // A helper class which allows the user to add actions for different usernames and returns single,
 // concatenated arrays of action when adding an action array from a user results in having actions for all users.
-var createActionController = function () {
+var createTurnDataCollector = function () {
     var self = {};
-    self.userActionBuffer = {}; //Username, Object as dictionary of key: turn, value: Array of actions
+    self.usersTurnData = {}; //Username, Object as dictionary of key: turn, value: Array of actions
     return {
         addUser: function (username) {
-            if (self.userActionBuffer[username] !== undefined)
+            if (self.usersTurnData[username] !== undefined)
                 throw "username '" + username + "' already exists.";
-            self.userActionBuffer[username] = {};
+            self.usersTurnData[username] = {};
         },
         removeUser: function (username) {
-            if (self.userActionBuffer[username] === undefined)
+            if (self.usersTurnData[username] === undefined)
                 throw "username '" + username + "' does not exist.";
-            delete self.userActionBuffer[username];
+            delete self.usersTurnData[username];
         },
         // Adds actions for a user and a specific turn.
         // If all users have added actions for the specific turn, a single array is returned containing all users actions for the given turn.
         // Elseway, null is returned.
-        addActions: function (username, turn, actionArray) {
-            var userBuffer = self.userActionBuffer[username];
+        addTurnData: function (username, turn, turnData) {
+            var userBuffer = self.usersTurnData[username];
             // Param validations
             if (userBuffer === undefined)
                 throw "username '" + username + "' does not exist.";
@@ -102,20 +108,23 @@ var createActionController = function () {
             }
 
             // Add turn array
-            userBuffer[turn] = actionArray;
+            userBuffer[turn] = turnData;
 
             // Check if all users have added an action array for the current turn. If so, return a single array of all actions by all players fir the given turn
-            var allActionsForCurrentTurn = [];
-            for (username in self.userActionBuffer) {
-                var currentUserBuffer = self.userActionBuffer[username][turn];
+            var allTurnDatasCurrentTurn = createEmptyTurnData();
+            for (username in self.usersTurnData) {
+                var currentUserBuffer = self.usersTurnData[username][turn];
                 if (currentUserBuffer === undefined)
                     return null; // Found a user that has not yet added a turn array for the given turn number
                 // Add all actions in actions array to the array to be returned
-                for (var i = 0; i < currentUserBuffer.length; i++) {
-                    allActionsForCurrentTurn.push(currentUserBuffer[i]);
+                for (var i = 0; i < currentUserBuffer.systemCommands.length; i++) {
+                    allTurnDatasCurrentTurn.systemCommands.push(currentUserBuffer.systemCommands[i]);
+                }
+                for (var i = 0; i < currentUserBuffer.gameCommands.length; i++) {
+                    allTurnDatasCurrentTurn.gameCommands.push(currentUserBuffer.gameCommands[i]);
                 }
             }
-            return allActionsForCurrentTurn;
+            return allTurnDatasCurrentTurn;
         }
     };
 };
