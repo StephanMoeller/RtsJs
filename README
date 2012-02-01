@@ -1,7 +1,1 @@
-1)
-Start rtsServer.js
-
-2)
-To test singleplayer: Run http://localhost:8080/singleplayer.html
-To test replay: Run http://localhost:8080/replay.html
-To test multiplayer: Run http://localhost:8080/multiroom.html
+Read the wiki for instructions.
