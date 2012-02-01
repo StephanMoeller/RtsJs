@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<!-- 
+RtsJs
+Copyright(c) 2012 Stephan Ryer <stephanryer@hotmail.com>
+MIT Licensed
+-->
+<html lang="en">
+<head>
+    <title>Multi user page</title>
+</head>
+    <body style="background-color: #444">
+        <input type="button" value="Launch 3 clients for a multiplayer room" onclick="javascript:launch();" />
+        <script type="text/javascript">
+            var launch = function() {
+                var gameId = "game_" + Math.random();
+                window.open("multiplayer.html?username=UserA&groupId=" + gameId + "&totalUserCount=3", "User A, game " + gameId, "menubar=1,resizable=1,width=450,height=800").moveTo(0, 0);
+                window.open("multiplayer.html?username=UserB&groupId=" + gameId + "&totalUserCount=3", "User B, game " + gameId, "menubar=1,resizable=1,width=450,height=800").moveTo(450, 0);
+                window.open("multiplayer.html?username=UserC&groupId=" + gameId + "&totalUserCount=3", "User C, game " + gameId, "menubar=1,resizable=1,width=450,height=800").moveTo(900, 0);
+            };
+        </script>
+    </body>
+</html>

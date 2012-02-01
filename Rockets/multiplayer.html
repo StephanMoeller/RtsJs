@@ -8,8 +8,8 @@ MIT Licensed
 <head>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
     <script type="text/javascript" src="../RtsJs/rtsClient.js"></script>
-    <script type="text/javascript" src="ballGame-logic.js"></script>
-    <script type="text/javascript" src="ballGame-ui.js"></script>
+    <script type="text/javascript" src="rockets-logic.js"></script>
+    <script type="text/javascript" src="rockets-ui.js"></script>
     <script type="text/javascript" src="/nowjs/now.js"></script>
     <script type="text/javascript">
         // Client web methods
@@ -47,8 +47,9 @@ MIT Licensed
                 totalUserCount: parseInt(queryString("totalUserCount")),
                 // Called when all clients are connected and game is started
                 callbackStart: function () {
-                    gameLogic = ballGameLogic.create(client.ownUsername(), client.allUsernames());
-                    gameUi = ballGameUi.create(gameLogic, canvas, function (gameCommand) {
+                    // Setup game logic and ui
+                    gameLogic = rocketsLogic.create(client.ownUsername(), client.allUsernames());
+                    gameUi = rocketsUi.create(gameLogic, canvas, function (gameCommand) {
                         client.addData(gameCommand);
                     });
                     // Debug info
@@ -79,7 +80,7 @@ MIT Licensed
 
             // Functionality to generate replay
             $("#btnGenerateReplay").click(function () {
-                $("#txtReplay").val(JSON.stringify(gameLogic.getAllActions())).show();
+                $("#txtReplay").val(JSON.stringify(gameLogic.getReplay())).show();
             });
 
             $("#latencySelector").click(function () {

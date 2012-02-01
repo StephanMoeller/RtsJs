@@ -8,24 +8,24 @@ MIT Licensed
 <head>
     <title>nowjs Multi Room Chat Server</title>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
-    <script type="text/javascript" src="ballGame-logic.js"></script>
-    <script type="text/javascript" src="ballGame-ui.js"></script>
+    <script type="text/javascript" src="rockets-logic.js"></script>
+    <script type="text/javascript" src="rockets-ui.js"></script>
 
     <!-- This will be client script containing the "createClient" call and the game logic -->
     <script type="text/javascript">
+        // This instantiates the RTS model and hookups the calls to the game model
         var ownUsername = "SinglePlayer";
         var allUsernames = { SinglePlayer: "SinglePlayer" };
         
-        // This instantiates the RTS model and hookups the calls to the game model
         $(document).ready(function () {
             // The canvas to draw on
             var canvas = document.getElementById('canvas');
 
             // The game model dependency (Independent). Only reference to ballGame-logic.js
-            var gameLogic = ballGameLogic.create(ownUsername, allUsernames);
+            var gameLogic = rocketsLogic.create(ownUsername, allUsernames);
 
             // The graphical dependency (dependent on the game logic provided to it). Only reference to ballGame-ui.js
-            var gameUi = ballGameUi.create(gameLogic, canvas, function (gameCommand) {
+            var gameUi = rocketsUi.create(gameLogic, canvas, function (gameCommand) {
                 nextActionArraybuffer.push(gameCommand);
             });
 
@@ -39,7 +39,7 @@ MIT Licensed
 
             // Functionality to generate replay
             $("#btnGenerateReplay").click(function () {
-                $("#txtReplay").val(JSON.stringify(gameLogic.getAllActions())).show();
+                $("#txtReplay").val(JSON.stringify(gameLogic.getReplay())).show();
             });
         });        
 

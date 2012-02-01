@@ -37,7 +37,11 @@ ballGameLogic.utils = {
 ballGameLogic.createAction = function (mouseX, mouseY) {
     return { x: mouseX, y: mouseY };
 };
-ballGameLogic.create = function () {
+ballGameLogic.create = function (ownUsername, allUsernames) {
+    if (ownUsername === undefined)
+        throw "ownUsername undefined!";
+    if (allUsernames === undefined)
+        throw "allUsernames undefined!";
     var self = {};
     var utils = ballGameLogic.utils;
     self.width = 300;
@@ -70,6 +74,12 @@ ballGameLogic.create = function () {
         },
         getAllActions: function () {
             return self.allActions;
+        },
+        ownUsername: function () {
+            return ownUsername;
+        },
+        allUsernames: function () {
+            return allUsernames;
         },
         tick: function (actionArray) {
             self.allActions.push(actionArray); // Used for replays only

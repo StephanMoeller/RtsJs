@@ -20,6 +20,11 @@ rtsClient.create = function (data) {
     var latency = 1; // Number of game turns per network turns. 1 is minimum and means 1 game turn per network turn.
     var remainingEmptyGameTurnsToExecute = 0;
 
+    var self = {
+        ownUsername: data.username,
+        allUsernames: undefined
+    };
+
     // Initialize input buffer with ampty entries
     for (var i = 0; i < futureExecutionStepDelay; i++) {
         inputTurnBuffer[i] = createEmptyTurnData();
@@ -34,7 +39,7 @@ rtsClient.create = function (data) {
         }
 
         // Time to execute the next network turn (send next and process new received turn).
-        
+
         // Check if next input is missing
         var turnData = inputTurnBuffer[currentNetworkTurn];
         if (turnData === undefined) {
@@ -64,12 +69,13 @@ rtsClient.create = function (data) {
         currentNetworkTurn++;
         outputTurnBuffer = createEmptyTurnData();
         remainingEmptyGameTurnsToExecute = latency - 1; // Ensures that [latency - 1] number of empty game updates will be executed before handling next network turn
-        
+
         // Debug data
         updateDebugInfo();
     };
 
-    now.clientStart = function () {
+    now.clientStart = function (allUsernames) {
+        self.allUsernames = allUsernames;
         data.callbackStart();
         setInterval(executeNextGameTurn, 40);
     };
@@ -106,6 +112,12 @@ rtsClient.create = function (data) {
     };
 
     return {
+        ownUsername: function () {
+            return self.ownUsername;
+        },
+        allUsernames: function () {
+            return self.allUsernames;
+        },
         addData: function (action) {
             // Tells the server to add the specified data to the next data array sent by the server to all clients.
             outputTurnBuffer.gameCommands.push(action);

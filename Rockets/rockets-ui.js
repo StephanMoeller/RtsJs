@@ -7,8 +7,8 @@
 /*
 * This file contains logic handling drawing and inputs
 */
-var ballGameUi = {};
-ballGameUi.create = function (gameLogic, canvas, gameCommandCreatedCallback) {
+var rocketsUi = {};
+rocketsUi.create = function (gameLogic, canvas, gameCommandCreatedCallback) {
     var self = {};
     self.ctx = canvas.getContext('2d');
     self.screenWidth = canvas.width;
@@ -23,10 +23,11 @@ ballGameUi.create = function (gameLogic, canvas, gameCommandCreatedCallback) {
     // Setup input listening and action creation here
     var jqueryCanvas = $("#" + canvas.id);
     jqueryCanvas.click(function (event) {
-        var x = event.pageX - this.offsetLeft;
-        var y = event.pageY - this.offsetTop;
-        var action = ballGameLogic.createAction(x, y);
-        gameCommandCreatedCallback(action);
+        //TODO:
+        //        var x = event.pageX - this.offsetLeft;
+        //        var y = event.pageY - this.offsetTop;
+        //        var gameCommand = undefined;
+        //        gameCommandCreatedCallback(gameCommand);
     });
 
     var clearScreen = function () {
@@ -39,38 +40,15 @@ ballGameUi.create = function (gameLogic, canvas, gameCommandCreatedCallback) {
             // Clear screen
             clearScreen();
 
-            // Draw all balls
-            var balls = gameLogic.getBalls();
-            var ballId;
-            var ball;
-
-            preCtx.beginPath();
-            preCtx.fillStyle = "#000";
-            for (ballId in balls) {
-                ball = balls[ballId];
-                preCtx.arc(ball.x + 2, ball.y + 2, ball.radius + 2, 0, Math.PI * 2);
-            }
-            preCtx.closePath();
-            preCtx.fill();
-
-            preCtx.beginPath();
-            preCtx.fillStyle = "#FFF";
-            for (ballId in balls) {
-                ball = balls[ballId];
-                preCtx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-            }
-            preCtx.closePath();
-            preCtx.fill();
-
             preCtx.font = "bold 12px sans-serif";
             var yPos = self.screenHeight - 12;
             var allUsernames = gameLogic.allUsernames();
-            for (var username in allUsernames) {
-                preCtx.fillStyle = username === gameLogic.ownUsername() ? "#FF0" : "#FFF";
+            for (var username in allUsernames) {                
+                preCtx.fillStyle = username === gameLogic.ownUsername() ? "#FF0":"#FFF";
                 preCtx.fillText(username, 10, yPos);
                 yPos -= 15;
             }
-            
+
             // Apply prerender
             self.ctx.drawImage(preRenderCanvas, 0, 0);
         }

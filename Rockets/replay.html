@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<!-- 
+RtsJs
+Copyright(c) 2012 Stephan Ryer <stephanryer@hotmail.com>
+MIT Licensed
+-->
+<html lang="en">
+<head>
+    <title>nowjs Multi Room Chat Server</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+    <script type="text/javascript" src="rockets-logic.js"></script>
+    <script type="text/javascript" src="rockets-ui.js"></script>
+    
+    <!-- This will be client script containing the "createClient" call and the game logic -->
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            // This instantiates the RTS model and hookups the calls to the game model
+            $("#btnLoadReplay").click(function () {
+                var replay = JSON.parse($("#txtReplay").val());
+                var gameCommands = replay.gameCommands;
+
+                // The canvas to draw on
+                var canvas = document.getElementById('canvas');
+
+                // The game model dependency (Independent). Only reference to ballGame-logic.js
+                var gameLogic = rocketsLogic.create(replay.ownUsername, replay.allUsernames);
+
+                // The graphical dependency (dependent on the game logic provided to it). Only reference to ballGame-ui.js
+                var gameUi = rocketsUi.create(gameLogic, canvas, function (gameCommand) {
+                    // Ignoring actions created as the only actions processed will be thos of the replay
+                });
+
+                // Keep new actions locally and just feed the game logic with those
+                var nextActionIndex = 0;
+                setInterval(function () {
+                    var tick = function () {
+                        if (nextActionIndex >= gameCommands.length) {
+                            // Replay ended
+                            return;
+                        }
+                        // Update game ticks according to play speed
+                        gameLogic.tick(gameCommands[nextActionIndex]);
+                        nextActionIndex++;
+                    };
+
+                    // Fast forward support implemented by ticking a number of times according to the value of 'playSpeed'
+                    for (var i = 0; i < playSpeed; i++) {
+                        tick();
+                    }
+
+                    // Only draw once no matter what playSpeed
+                    gameUi.draw();
+
+                    // Update the ui showing the game progress
+                    updateProgress(nextActionIndex, gameCommands.length);
+                }, 40);
+
+                // Hide replay text window and button
+                $("#replayContainer").hide();
+            });
+
+            // Fast forward control
+            var playSpeed = 1;
+            $("#btnIncreasePlaySpeed").click(function (event) {
+                playSpeed *= 2;
+                $("#playSpeed").html(playSpeed);
+            });
+            $("#btnDecreasePlaySpeed").click(function (event) {
+                if (playSpeed > 1)
+                    playSpeed /= 2;
+                $("#playSpeed").html(playSpeed);
+            });
+            $("#playSpeed").html(playSpeed);
+
+            var updateProgress = function (elapsedTicks, totalTicks) {
+                var percentageDone = Math.round(elapsedTicks / totalTicks * 100);
+                $("#progress").html(percentageDone + "%");
+            };
+        });
+    </script>
+</head>
+<body style="background-color: #444; color: white; font-family: arial;">
+    
+    <div id="replayContainer">
+        <input type="button" id="btnLoadReplay" value="Load replay from textbow below" />
+        <br />
+        <textarea id="txtReplay" rows="10" cols="40"></textarea>
+    </div>
+    
+    <canvas width="300" height="300" id="canvas"></canvas>
+    <br/>
+    <input type="button" id="btnDecreasePlaySpeed" value="-" />Play speed: <span id="playSpeed"></span><input type="button" id="btnIncreasePlaySpeed" value="+" />
+    <span id="progress"></span>
+</body>
+</html>

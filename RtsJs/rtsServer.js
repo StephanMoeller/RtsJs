@@ -41,6 +41,9 @@ exports.createServer = function (server) {
                 this.now.currentGroupId = groupId;
                 this.now.username = username;
                 group.addUser(this.user.clientId);
+                if (group.usernames === undefined)
+                    group.usernames = {};
+                group.usernames[username] = username;
 
                 // Add action controller if user first in group.
                 if (group.turnDataCollector === undefined)
@@ -60,7 +63,7 @@ exports.createServer = function (server) {
                         console.log("Starting group " + groupId);
 
                         // Called by server when all clients are connected and the game is about to start
-                        group.now.clientStart();
+                        group.now.clientStart(group.usernames);
 
                         // Tells the server to add the specified data to the next data array sent by the server to all clients.
                         group.now.serverAddTurnData = function (turn, turnData) {
@@ -104,7 +107,7 @@ var createTurnDataCollector = function () {
             if (userBuffer === undefined)
                 throw "username '" + username + "' does not exist.";
             if (userBuffer[turn] !== undefined) {
-                throw "user '" + username + "' has already added an action array for turnnumber " + turn + ". Value: " + self.userActionBuffer[username][turn];
+                throw "user '" + username + "' has already added an action array for turnnumber " + turn + ". Value: " + userBuffer[turn];
             }
 
             // Add turn array
