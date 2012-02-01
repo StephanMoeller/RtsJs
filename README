@@ -5,7 +5,3 @@ Start rtsServer.js
 To test singleplayer: Run http://localhost:8080/singleplayer.html
 To test replay: Run http://localhost:8080/replay.html
 To test multiplayer: Run http://localhost:8080/multiroom.html
-
-Todo list:
-
-- Handle when a player disconnects (dies or closes window) and keep the game running - use game commands for this kind of task
