@@ -8,10 +8,4 @@ To test multiplayer: Run http://localhost:8080/multiroom.html
 
 Todo list:
 
-- Send usernames to all users at startup
-- Handle when a player disconnects (dies or closes window) and keep the game running - use system commands for this kind of task
-- Unist test:
-	Latency
-		Test multiple actions while latency changes
-	Disconnects
-		Test disconnections while 
+- Handle when a player disconnects (dies or closes window) and keep the game running - use game commands for this kind of task
